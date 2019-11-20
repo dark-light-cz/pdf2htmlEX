@@ -29,7 +29,7 @@ using std::unique_ptr;
 const SplashColor SplashBackgroundRenderer::white = {255,255,255};
 
 SplashBackgroundRenderer::SplashBackgroundRenderer(const string & imgFormat, HTMLRenderer * html_renderer, const Param & param)
-    : SplashOutputDev(splashModeRGB8, 4, gFalse, (SplashColorPtr)(&white))
+    : SplashOutputDev(splashModeRGB8, 4, false, (SplashColorPtr)(&white))
     , html_renderer(html_renderer)
     , param(param)
     , format(imgFormat)
@@ -126,8 +126,8 @@ void SplashBackgroundRenderer::init(PDFDoc * doc)
     startDoc(doc);
 }
 
-static GBool annot_cb(Annot *, void * pflag) {
-    return (*((bool*)pflag)) ? gTrue : gFalse;
+static bool annot_cb(Annot *, void * pflag) {
+    return (*((bool*)pflag)) ? true : false;
 };
 
 bool SplashBackgroundRenderer::render_page(PDFDoc * doc, int pageno)

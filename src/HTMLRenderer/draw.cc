@@ -56,7 +56,7 @@ void HTMLRenderer::eoFill(GfxState * state)
     tracer.fill(state, true);
 }
 
-GBool HTMLRenderer::axialShadedFill(GfxState *state, GfxAxialShading *shading, double tMin, double tMax)
+bool HTMLRenderer::axialShadedFill(GfxState *state, GfxAxialShading *shading, double tMin, double tMax)
 {
     tracer.fill(state); //TODO correct?
     return true;

@@ -3,7 +3,10 @@
 set(CMAKE_BUILD_TYPE Release CACHE STRING "Build configuration (Debug, Release, RelWithDebInfo, MinSizeRel)")
 
 project(pdf2htmlEX)
-cmake_minimum_required(VERSION 2.6.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
+set (CMAKE_CXX_STANDARD 14)
+set (CMAKE_CXX_EXTENSIONS OFF)
+set (CMAKE_CXX_STANDARD_REQUIRED ON)
 
 option(ENABLE_SVG "Enable SVG support, for generating SVG background images and converting Type 3 fonts" ON)
 
@@ -20,7 +23,11 @@ find_package(PkgConfig)
 
 
 pkg_check_modules(POPPLER REQUIRED poppler>=0.25.0)
+# set(POPPLER_INCLUDE_DIRS "/usr/local/include/poppler")
 include_directories(${POPPLER_INCLUDE_DIRS})
+message(STATUS "Poppler include dirs:'${POPPLER_INCLUDE_DIRS}'")
+set(POPPLER_LIBRARY_DIRS "/usr/local/lib/")
+message(STATUS "Poppler library dirs:'${POPPLER_LIBRARY_DIRS}'")
 link_directories(${POPPLER_LIBRARY_DIRS})
 set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${POPPLER_LIBRARIES})
 
@@ -33,16 +40,16 @@ if(ENABLE_SVG)
         link_directories(${CAIRO_LIBRARY_DIRS})
         set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${CAIRO_LIBRARIES})
         set(ENABLE_SVG 1)
-        set(CAIROOUTPUTDEV_PATH 3rdparty/poppler/git)
-        include_directories(${CAIROOUTPUTDEV_PATH})
-        set(PDF2HTMLEX_SRC ${PDF2HTMLEX_SRC}
-            ${CAIROOUTPUTDEV_PATH}/CairoFontEngine.h
-            ${CAIROOUTPUTDEV_PATH}/CairoFontEngine.cc
-            ${CAIROOUTPUTDEV_PATH}/CairoRescaleBox.h
-            ${CAIROOUTPUTDEV_PATH}/CairoRescaleBox.cc
-            ${CAIROOUTPUTDEV_PATH}/CairoOutputDev.h
-            ${CAIROOUTPUTDEV_PATH}/CairoOutputDev.cc
-        )
+        # set(CAIROOUTPUTDEV_PATH 3rdparty/poppler/git)
+        # include_directories(${CAIROOUTPUTDEV_PATH})
+        # set(PDF2HTMLEX_SRC ${PDF2HTMLEX_SRC}
+        #     ${CAIROOUTPUTDEV_PATH}/CairoFontEngine.h
+        #     ${CAIROOUTPUTDEV_PATH}/CairoFontEngine.cc
+        #     ${CAIROOUTPUTDEV_PATH}/CairoRescaleBox.h
+        #     ${CAIROOUTPUTDEV_PATH}/CairoRescaleBox.cc
+        #     ${CAIROOUTPUTDEV_PATH}/CairoOutputDev.h
+        #     ${CAIROOUTPUTDEV_PATH}/CairoOutputDev.cc
+        # )
     else()
         message(FATAL_ERROR "Error: no SVG support found in Cairo")
     endif()

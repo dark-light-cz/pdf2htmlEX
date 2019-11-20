@@ -56,7 +56,7 @@ namespace pdf2htmlEX {
  * TODO Web specs? IE?
  *
  */
-inline bool is_illegal_unicode(Unicode c)
+inline bool is_illegal_unicode(const Unicode c)
 {
     return (c < 0x20) || (c >= 0x7F && c <= 0xA0) || (c == 0xAD)
             || (c == 0x061C) || (c == 0x1361)
@@ -76,6 +76,7 @@ Unicode unicode_from_font (CharCode code, GfxFont * font);
  * if we got multi-unicode values, it might be expanded ligature, try to restore it
  * if we cannot figure it out at the end, use a private mapping
  */
+Unicode check_unicode(const Unicode * u, int len, CharCode code, GfxFont * font);
 Unicode check_unicode(Unicode * u, int len, CharCode code, GfxFont * font);
 
 

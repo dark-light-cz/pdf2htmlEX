@@ -388,7 +388,7 @@ int main(int argc, char **argv)
 
     bool finished = false;
     // read config file
-    globalParams = new GlobalParams(!param.poppler_data_dir.empty() ? param.poppler_data_dir.c_str() : NULL);
+    globalParams = std::make_unique<GlobalParams>(!param.poppler_data_dir.empty() ? param.poppler_data_dir.c_str() : NULL);
     // open PDF file
     PDFDoc * doc = nullptr;
     try
@@ -434,11 +434,6 @@ int main(int argc, char **argv)
 
     // clean up
     delete doc;
-    delete globalParams;
-
-    // check for memory leaks
-    Object::memCheck(stderr);
-    gMemReport(stderr);
 
     exit(finished ? (EXIT_SUCCESS) : (EXIT_FAILURE));
 

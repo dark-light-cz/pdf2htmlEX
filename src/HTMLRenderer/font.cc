@@ -63,13 +63,9 @@ string HTMLRenderer::dump_embedded_font (GfxFont * font, FontInfo & info)
     {
         // inspired by mupdf 
         string subtype;
+        const Ref* id = font->getID();
 
-        auto * id = font->getID();
-
-        Object ref_obj;
-        ref_obj.initRef(id->num, id->gen);
-        ref_obj.fetch(xref, &font_obj);
-        ref_obj.free();
+        font_obj = Object(*id);
 
         if(!font_obj.isDict())
         {
@@ -78,8 +74,12 @@ string HTMLRenderer::dump_embedded_font (GfxFont * font, FontInfo & info)
         }
 
         Dict * dict = font_obj.getDict();
-        if(dict->lookup("DescendantFonts", &font_obj2)->isArray())
+
+
+        Ref id2;
+        if(dict->lookup("DescendantFonts", &id2).isArray())
         {
+            font_obj2 = Object(id2);
             if(font_obj2.arrayGetLength() == 0)
             {
                 cerr << "Warning: empty DescendantFonts array" << endl;
@@ -88,15 +88,15 @@ string HTMLRenderer::dump_embedded_font (GfxFont * font, FontInfo & info)
             {
                 if(font_obj2.arrayGetLength() > 1)
                     cerr << "TODO: multiple entries in DescendantFonts array" << endl;
-
-                if(font_obj2.arrayGet(0, &obj2)->isDict())
+                obj2 = font_obj2.arrayGet(0);
+                if(obj2.isDict())
                 {
                     dict = obj2.getDict();
                 }
             }
         }
-
-        if(!dict->lookup("FontDescriptor", &fontdesc_obj)->isDict())
+        fontdesc_obj = dict->lookup("FontDescriptor");
+        if(!fontdesc_obj.isDict())
         {
             cerr << "Cannot find FontDescriptor " << endl;
             throw 0;
@@ -104,9 +104,11 @@ string HTMLRenderer::dump_embedded_font (GfxFont * font, FontInfo & info)
 
         dict = fontdesc_obj.getDict();
 
-        if(dict->lookup("FontFile3", &obj)->isStream())
+        obj = dict->lookup("FontFile3");
+        if(obj.isStream())
         {
-            if(obj.streamGetDict()->lookup("Subtype", &obj1)->isName())
+            obj1 = obj.streamGetDict()->lookup("Subtype");
+            if(obj1.isName())
             {
                 subtype = obj1.getName();
                 if(subtype == "Type1C")
@@ -133,18 +135,26 @@ string HTMLRenderer::dump_embedded_font (GfxFont * font, FontInfo & info)
                 throw 0;
             }
         }
-        else if (dict->lookup("FontFile2", &obj)->isStream())
-        { 
-            suffix = ".ttf";
-        }
-        else if (dict->lookup("FontFile", &obj)->isStream())
-        {
-            suffix = ".pfa";
-        }
-        else
-        {
-            cerr << "Cannot find FontFile for dump" << endl;
-            throw 0;
+        else {
+            obj.setToNull();
+            obj = dict->lookup("FontFile2");
+            if (obj.isStream())
+            { 
+                suffix = ".ttf";
+            }
+            else {
+                obj.setToNull();
+                obj = dict->lookup("FontFile");
+                if (obj.isStream())
+                {
+                    suffix = ".pfa";
+                }
+                else
+                {
+                    cerr << "Cannot find FontFile for dump" << endl;
+                    throw 0;
+                }
+            }
         }
 
         if(suffix == "")
@@ -162,11 +172,11 @@ string HTMLRenderer::dump_embedded_font (GfxFont * font, FontInfo & info)
         if(!outf)
             throw string("Cannot open file ") + filepath + " for writing";
 
-        char buf[1024];
+        unsigned char buf[1024];
         int len;
-        while((len = obj.streamGetChars(1024, (Guchar*)buf)) > 0)
+        while((len = obj.streamGetChars(1024, &buf[0])) > 0)
         {
-            outf.write(buf, len);
+            outf.write((char*)&buf[0], len);
         }
         obj.streamClose();
     }
@@ -174,14 +184,14 @@ string HTMLRenderer::dump_embedded_font (GfxFont * font, FontInfo & info)
     {
         cerr << "Something wrong when trying to dump font " << hex << fn_id << dec << endl;
     }
+    // cleanup - old code has free() but it's private now in poppler
+    obj2.setToNull();
+    obj1.setToNull();
+    obj.setToNull();
 
-    obj2.free();
-    obj1.free();
-    obj.free();
-
-    fontdesc_obj.free();
-    font_obj2.free();
-    font_obj.free();
+    fontdesc_obj.setToNull();
+    font_obj2.setToNull();
+    font_obj.setToNull();
 
     return filepath;
 }
@@ -200,8 +210,8 @@ string HTMLRenderer::dump_type3_font (GfxFont * font, FontInfo & info)
     auto used_map = preprocessor.get_code_map(hash_ref(font->getID()));
 
     //calculate transformed metrics
-    double * font_bbox = font->getFontBBox();
-    double * font_matrix = font->getFontMatrix();
+    const double * font_bbox = font->getFontBBox();
+    const double * font_matrix = font->getFontMatrix();
     double transformed_bbox[4];
     memcpy(transformed_bbox, font_bbox, 4 * sizeof(double));
     /*
@@ -332,7 +342,7 @@ string HTMLRenderer::dump_type3_font (GfxFont * font, FontInfo & info)
                     &box, nullptr);
             output_dev->startDoc(cur_doc, &font_engine);
             output_dev->startPage(1, gfx->getState(), gfx->getXRef());
-            output_dev->setInType3Char(gTrue);
+            output_dev->setInType3Char(true);
             auto char_procs = ((Gfx8BitFont*)font)->getCharProcs();
             Object char_proc_obj;
             auto glyph_index = cur_font->getGlyph(code, nullptr, 0);
@@ -493,7 +503,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
             {
                 if(!used_map[i]) continue;
 
-                auto cn = font_8bit->getCharName(i);
+                const char *cn = font_8bit->getCharName(i);
                 if(cn == nullptr)
                 {
                     continue;
@@ -502,7 +512,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
                 {
                     if(nameset.insert(string(cn)).second)
                     {
-                        cur_mapping2[i] = cn;    
+                        cur_mapping2[i] = (char*)cn;    
                     }
                     else
                     {
@@ -616,7 +626,8 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
             if(mapped_code > max_key)
                 max_key = mapped_code;
 
-            Unicode u, *pu=&u;
+            Unicode u;
+            const Unicode* pu = &u;
             if(info.use_tounicode)
             {
                 int n = ctu ? (ctu->mapToUnicode(cur_code, &pu)) : 0;
@@ -738,9 +749,9 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
         {
             cerr << "space width: " << info.space_width << endl;
         }
-
-        if(ctu)
-            ctu->decRefCnt();
+        // TODO - fails on actual popper - expecting that it's not needed but it should be checked
+        // if(ctu)
+        //    ctu->decRefCnt();
     }
 
     /*
@@ -854,7 +865,7 @@ const FontInfo * HTMLRenderer::install_font(GfxFont * font)
     {
         cerr << "Install font " << hex << new_fn_id << dec
             << ": (" << (font->getID()->num) << ' ' << (font->getID()->gen) << ") " 
-            << (font->getName() ? font->getName()->getCString() : "")
+            << (font->getName() ? font->getName()->toStr().c_str() : "")
             << endl;
     }
 
@@ -884,7 +895,7 @@ const FontInfo * HTMLRenderer::install_font(GfxFont * font)
     /*
      * The 2nd parameter of locateFont should be true only for PS
      * which does not make much sense in our case
-     * If we specify gFalse here, font_loc->locType cannot be gfxFontLocResident
+     * If we specify false here, font_loc->locType cannot be gfxFontLocResident
      */
     if(auto * font_loc = font->locateFont(xref, nullptr))
     {
@@ -931,7 +942,7 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, FontInfo & info)
 
 void HTMLRenderer::install_external_font(GfxFont * font, FontInfo & info)
 {
-    string fontname(font->getName()->getCString());
+    string fontname(font->getName()->toStr());
 
     // resolve bad encodings in GB
     auto iter = GB_ENCODED_FONT_NAME_MAP.find(fontname); 
@@ -947,7 +958,7 @@ void HTMLRenderer::install_external_font(GfxFont * font, FontInfo & info)
     {
         if(localfontloc != nullptr)
         {
-            embed_font(string(localfontloc->path->getCString()), font, info);
+            embed_font(string(localfontloc->path->toStr()), font, info);
             export_remote_font(info, param.font_format, font);
             delete localfontloc;
             return;
@@ -963,7 +974,7 @@ void HTMLRenderer::install_external_font(GfxFont * font, FontInfo & info)
     if(localfontloc != nullptr)
     {
         // fill in ascent/descent only, do not embed
-        embed_font(string(localfontloc->path->getCString()), font, info, true);
+        embed_font(string(localfontloc->path->toStr()), font, info, true);
         delete localfontloc;
     }
     else

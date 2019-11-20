@@ -16,7 +16,10 @@
 #include <GfxState.h>
 #include <Stream.h>
 #include <PDFDoc.h>
-#include <goo/gtypes.h>
+// goo/gtypes not present in newer version of poppler => need new imports
+// #include <goo/gtypes.h>
+#include <Outline.h>
+//
 #include <Object.h>
 #include <GfxFont.h>
 #include <Annot.h>
@@ -58,26 +61,26 @@ struct HTMLRenderer : OutputDev
     
     // Does this device use upside-down coordinates?
     // (Upside-down means (0,0) is the top left corner of the page.)
-    virtual GBool upsideDown() { return gFalse; }
+    virtual bool upsideDown() { return false; }
 
     // Does this device use drawChar() or drawString()?
-    virtual GBool useDrawChar() { return gFalse; }
+    virtual bool useDrawChar() { return false; }
 
     // Does this device use functionShadedFill(), axialShadedFill(), and
     // radialShadedFill()?  If this returns false, these shaded fills
     // will be reduced to a series of other drawing operations.
-    virtual GBool useShadedFills(int type) { return (type == 2) ? gTrue: gFalse; }
+    virtual bool useShadedFills(int type) { return (type == 2) ? true: false; }
 
     // Does this device use beginType3Char/endType3Char?  Otherwise,
     // text in Type 3 fonts will be drawn with drawChar/drawString.
-    virtual GBool interpretType3Chars() { return gFalse; }
+    virtual bool interpretType3Chars() { return false; }
 
     // Does this device need non-text content?
-    virtual GBool needNonText() { return (param.process_nontext) ? gTrue: gFalse; }
+    virtual bool needNonText() { return (param.process_nontext) ? true: false; }
 
     // Does this device need to clip pages to the crop box even when the
     // box is the crop box?
-    virtual GBool needClipToCropBox() { return gTrue; }
+    virtual bool needClipToCropBox() { return true; }
 
     virtual void setDefaultCTM(double *ctm);
 
@@ -128,21 +131,21 @@ struct HTMLRenderer : OutputDev
     
     virtual void drawString(GfxState * state, GooString * s);
 
-    virtual void drawImage(GfxState * state, Object * ref, Stream * str, int width, int height, GfxImageColorMap * colorMap, GBool interpolate, int *maskColors, GBool inlineImg);
+    virtual void drawImage(GfxState * state, Object * ref, Stream * str, int width, int height, GfxImageColorMap * colorMap, bool interpolate, int *maskColors, bool inlineImg);
 
     virtual void drawSoftMaskedImage(GfxState *state, Object *ref, Stream *str,
                        int width, int height,
                        GfxImageColorMap *colorMap,
-                       GBool interpolate,
+                       bool interpolate,
                        Stream *maskStr,
                        int maskWidth, int maskHeight,
                        GfxImageColorMap *maskColorMap,
-                       GBool maskInterpolate);
+                       bool maskInterpolate);
 
     virtual void stroke(GfxState *state); 
     virtual void fill(GfxState *state);
     virtual void eoFill(GfxState *state);
-    virtual GBool axialShadedFill(GfxState *state, GfxAxialShading *shading, double tMin, double tMax);
+    virtual bool axialShadedFill(GfxState *state, GfxAxialShading *shading, double tMin, double tMax);
 
     virtual void processLink(AnnotLink * al);
 
@@ -163,7 +166,7 @@ protected:
     void post_process(void);
 
     void process_outline(void);
-    void process_outline_items(GooList * items);
+    void process_outline_items(std::vector<OutlineItem*> * items);
 
     void process_form(std::ofstream & out);
     

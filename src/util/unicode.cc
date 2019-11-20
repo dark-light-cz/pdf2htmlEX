@@ -53,7 +53,7 @@ Unicode unicode_from_font (CharCode code, GfxFont * font)
     return map_to_private(code);
 }
 
-Unicode check_unicode(Unicode * u, int len, CharCode code, GfxFont * font)
+Unicode check_unicode(const Unicode * u, int len, CharCode code, GfxFont * font)
 {
     if(len == 0)
         return map_to_private(code);
@@ -65,6 +65,11 @@ Unicode check_unicode(Unicode * u, int len, CharCode code, GfxFont * font)
     }
 
     return unicode_from_font(code, font);
+}
+
+Unicode check_unicode(Unicode * u, int len, CharCode code, GfxFont * font)
+{
+    return check_unicode((const Unicode*) u, len, code, font);
 }
 
 } //namespace pdf2htmlEX

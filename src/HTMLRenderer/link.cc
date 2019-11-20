@@ -40,7 +40,7 @@ static string get_linkdest_detail_str(LinkDest * dest, Catalog * catalog, int & 
     if(dest->isPageRef())
     {
         auto pageref = dest->getPageRef();
-        pageno = catalog->findPage(pageref.num, pageref.gen);
+        pageno = catalog->findPage(pageref);
     }
     else
     {
@@ -166,7 +166,7 @@ string HTMLRenderer::get_linkaction_str(LinkAction * action, string & detail)
             case actionURI:
                 {
                     auto * real_action = dynamic_cast<LinkURI*>(action);
-                    dest_str = real_action->getURI()->getCString();
+                    dest_str = real_action->getURI()->toStr();
                 }
                 break;
             case actionLaunch:
