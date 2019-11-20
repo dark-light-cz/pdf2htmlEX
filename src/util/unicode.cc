@@ -40,7 +40,7 @@ Unicode unicode_from_font (CharCode code, GfxFont * font)
 {
     if(!font->isCIDFont())
     {
-        char * cname = dynamic_cast<Gfx8BitFont*>(font)->getCharName(code);
+        const char * cname = dynamic_cast<Gfx8BitFont*>(font)->getCharName(code);
         // may be untranslated ligature
         if(cname)
         {

@@ -235,21 +235,28 @@ string CairoBackgroundRenderer::build_bitmap_path(int id)
     return string(html_renderer->str_fmt("%s/o%d.jpg", param.dest_dir.c_str(), id));
 }
 // Override CairoOutputDev::setMimeData() and dump bitmaps in SVG to external files.
-void CairoBackgroundRenderer::setMimeData(Stream *str, Object *ref, cairo_surface_t *image)
+void CairoBackgroundRenderer::setMimeData(GfxState *state, Stream *str, Object *ref,
+		   GfxImageColorMap *colorMap, cairo_surface_t *image, int height)
 {
     if (param.svg_embed_bitmap)
     {
-        CairoOutputDev::setMimeData(str, ref, image);
+        CairoOutputDev::setMimeData(state, str, ref, colorMap, image, height);
         return;
     }
 
     // TODO dump bitmaps in other formats.
     if (str->getKind() != strDCT)
+    {
+        std::cerr << "TODO - should dump bitmaps in other formats" << std::endl;
         return;
+    }
 
     // TODO inline image?
     if (ref == nullptr || !ref->isRef())
+    {
+        std::cerr << "TODO - should inline image?" << std::endl;
         return;
+    }
 
     // We only dump rgb or gray jpeg without /Decode array.
     //
@@ -263,21 +270,20 @@ void CairoBackgroundRenderer::setMimeData(Stream *str, Object *ref, cairo_surfac
     //
     // In PDF, jpeg stream objects can also specify other color spaces like DeviceN and Separation,
     // It is also not safe to dump them directly.
-    Object obj;
-    str->getDict()->lookup("ColorSpace", &obj);
+    Object obj = str->getDict()->lookup("ColorSpace");
     if (!obj.isName() || (strcmp(obj.getName(), "DeviceRGB") && strcmp(obj.getName(), "DeviceGray")) )
     {
-        obj.free();
+        obj.setToNull();
         return;
     }
-    obj.free();
-    str->getDict()->lookup("Decode", &obj);
+    obj.setToNull();
+    obj = str->getDict()->lookup("Decode");
     if (obj.isArray())
     {
-        obj.free();
+        obj.setToNull();
         return;
     }
-    obj.free();
+    obj.setToNull();
 
     int imgId = ref->getRef().num;
     auto uri = strdup((char*) html_renderer->str_fmt("o%d.jpg", imgId));

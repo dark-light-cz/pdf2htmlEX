@@ -166,7 +166,7 @@ protected:
     void post_process(void);
 
     void process_outline(void);
-    void process_outline_items(std::vector<OutlineItem*> * items);
+    void process_outline_items(const std::vector<OutlineItem*> * items);
 
     void process_form(std::ofstream & out);
     

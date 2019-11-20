@@ -38,7 +38,6 @@
 
 #include <poppler-config.h>
 
-// #include "config.h"
 #include <string.h>
 #include "CairoFontEngine.h"
 #include "CairoOutputDev.h"
@@ -418,7 +417,7 @@ CairoFreeTypeFont *CairoFreeTypeFont::create(GfxFont *gfxFont, XRef *xref,
 
   if (!(fontLoc = gfxFont->locateFont(xref, nullptr))) {
     error(errSyntaxError, -1, "Couldn't find a font for '{0:s}'",
-    	gfxFont->getName() ? gfxFont->getName()->toStr().c_str()
+    	gfxFont->getName() ? gfxFont->getName()->c_str()
 	                       : "(unnamed)");
     goto err2;
   }
@@ -437,7 +436,7 @@ CairoFreeTypeFont *CairoFreeTypeFont::create(GfxFont *gfxFont, XRef *xref,
   }
 
   if (fileName != nullptr) {
-    fileNameC = fileName->toStr().c_str();
+    fileNameC = fileName->c_str();
   }
 
   switch (fontType) {

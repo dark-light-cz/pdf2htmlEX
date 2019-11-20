@@ -19,19 +19,19 @@ namespace pdf2htmlEX {
 
 using std::ostream;
 
-void HTMLRenderer::process_outline_items(std::vector<OutlineItem*> * items)
+void HTMLRenderer::process_outline_items(const std::vector<OutlineItem*> * items)
 {
-    if((!items) || (items->getLength() == 0))
+    if((!items) || (items->size() == 0))
         return;
 
     f_outline.fs << "<ul>";
 
-    for(int i = 0; i < items->getLength(); ++i)
+    for(std::vector<OutlineItem*>::size_type i = 0; i < items->size(); ++i)
     {
-        OutlineItem * item = (OutlineItem*)(items->get(i));
+        OutlineItem * item = (OutlineItem*)(items->at(i));
 
         string detail;
-        string dest = get_linkaction_str(item->getAction(), detail);
+        string dest = get_linkaction_str((LinkAction*)item->getAction(), detail);
 
         // we don't care dest is empty or not.
         f_outline.fs << "<li>" << "<a class=\"" << CSS::LINK_CN << "\" href=\"";

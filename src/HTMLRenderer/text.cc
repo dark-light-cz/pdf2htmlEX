@@ -51,8 +51,9 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
 
     // Now ready to output
     // get the unicodes
-    char *p = s->getCString();
-    int len = s->getLength();
+    std::string p_str = s->toStr();
+    const char *p = p_str.c_str();
+    std::string::size_type len = p_str.size();
 
     //accumulated displacement of chars in this string, in text object space
     double dx = 0;
@@ -67,7 +68,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
     int uLen;
 
     CharCode code;
-    Unicode *u = nullptr;
+    const Unicode *u = nullptr;
 
     HR_DEBUG(printf("HTMLRenderer::drawString:len=%d\n", len));
 
