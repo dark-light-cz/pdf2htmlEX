@@ -91,6 +91,9 @@ else()
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 endif()
 
+add_compile_options(-m64)
+add_compile_options(-march=x86-64)
+
 # check the C++11 features we need
 include(CheckCXXSourceCompiles)
 check_cxx_source_compiles("

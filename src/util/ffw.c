@@ -55,8 +55,10 @@ static void dumb_post_error(const char * title, const char * error, ...) { }
 void ffw_init(int debug)
 {
     InitSimpleStuff();
-    if ( default_encoding==NULL )
-        default_encoding=FindOrMakeEncoding("ISO8859-1");
+    if ( default_encoding==NULL ){
+        Encoding *enc  = FindOrMakeEncoding("ISO8859-1");
+        default_encoding = enc;
+    }
     if ( default_encoding==NULL )
         default_encoding=&custom; /* In case iconv is broken */
 
@@ -71,8 +73,22 @@ void ffw_init(int debug)
     unicodefull_enc = FindOrMakeEncoding("UnicodeFull");
 
     {
+        /*
         Val v;
         v.type = v_int;
+        v.u.ival = 1;
+        v.u.fval = 0.0;
+        v.u.sval = NULL;
+        v.u.lval = NULL;
+        v.u.aval = NULL;
+        v.u.u32ptval = NULL;
+        v.u.u16ptval = NULL;
+        v.u.u8ptval = NULL;
+
+        SetPrefs("DetectDiagonalStems", &v, NULL);
+        */
+        Val v;
+        GetPrefs("DetectDiagonalStems", &v);
         v.u.ival = 1;
         SetPrefs("DetectDiagonalStems", &v, NULL);
     }

@@ -63,7 +63,7 @@ struct HTMLRenderer : OutputDev
     // (Upside-down means (0,0) is the top left corner of the page.)
     virtual bool upsideDown() { return false; }
 
-    // Does this device use drawChar() or drawString()?
+    // Does this device use drawChar() or drawString()? false means use drawString
     virtual bool useDrawChar() { return false; }
 
     // Does this device use functionShadedFill(), axialShadedFill(), and
@@ -73,6 +73,7 @@ struct HTMLRenderer : OutputDev
 
     // Does this device use beginType3Char/endType3Char?  Otherwise,
     // text in Type 3 fonts will be drawn with drawChar/drawString.
+    // We use drawString which desides how to interpret this depending on param
     virtual bool interpretType3Chars() { return false; }
 
     // Does this device need non-text content?

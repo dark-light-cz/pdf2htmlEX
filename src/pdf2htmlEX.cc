@@ -107,14 +107,11 @@ void embed_parser (const char * str)
 
 void prepare_directories()
 {
-    std::string tmp_dir = param.tmp_dir + "/pdf2htmlEX-XXXXXX";
-
+    std::string tmp_dir_str = param.tmp_dir + "/pdf2htmlEX-XXXXXX";
+    char * tmp_dir = (char*)tmp_dir_str.c_str();
     errno = 0;
-
-    unique_ptr<char> pBuf(new char[tmp_dir.size() + 1]);
-    strcpy(pBuf.get(), tmp_dir.c_str());
-    auto p = mkdtemp(pBuf.get());
-    if(p == nullptr)
+    char *dir_name = mkdtemp(tmp_dir);
+    if(dir_name == NULL)
     {
         const char * errmsg = strerror(errno);
         if(!errmsg)
@@ -124,7 +121,7 @@ void prepare_directories()
         cerr << "Cannot create temp directory: " << errmsg << endl;
         exit(EXIT_FAILURE);
     }
-    param.tmp_dir = pBuf.get();
+    param.tmp_dir = dir_name;
 }
 
 void parse_options (int argc, char **argv)
@@ -419,7 +416,8 @@ int main(int argc, char **argv)
         param.last_page = min<int>(max<int>(param.last_page, param.first_page), doc->getNumPages());
 
 
-        unique_ptr<HTMLRenderer>(new HTMLRenderer(param))->process(doc);
+        unique_ptr<HTMLRenderer> renderer = std::make_unique<HTMLRenderer>(param);
+        renderer->process(doc);
 
         finished = true;
     }

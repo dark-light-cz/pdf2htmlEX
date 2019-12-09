@@ -10,7 +10,8 @@
  * 2012.09.03
  */
 
-
+#ifndef PDFTOHTMLEX_UTIL_FWW_H
+#define PDFTOHTMLEX_UTIL_FWW_H
 #ifdef __cplusplus
 #include <cstdint>
 namespace pdf2htmlEX {
@@ -18,6 +19,43 @@ extern "C" {
 #else
 #include <stdint.h>
 #endif
+
+
+
+////////////////////////
+// Forward declarations
+
+typedef struct splinefont SplineFont;
+typedef struct enc Encoding;
+typedef struct dbounds DBounds;
+typedef struct fontviewbase FontViewBase;
+typedef struct encmap EncMap;
+typedef struct namelist NameList;
+
+
+extern void InitSimpleStuff(void);
+extern Encoding *FindOrMakeEncoding(const char *name);
+extern void SplineFontFindBounds(SplineFont *sf, DBounds *bounds);
+extern SplineFont *SplineFontNew(void);
+extern void FVRemoveKerns(FontViewBase *fv);
+extern void FVRemoveVKerns(FontViewBase *fv);
+extern void AltUniFree(struct altuni *altuni);
+extern int GenerateScript(SplineFont *sf, char *filename, const char *bitmaptype, int fmflags, int res, char *subfontdirectory, struct sflist *sfs, EncMap *map, NameList *rename_to, int layer);
+extern int SFForceEncoding(SplineFont *sf, EncMap *old, Encoding *new_enc);
+extern void EncMapFree(EncMap *map);
+extern EncMap *EncMapFromEncoding(SplineFont *sf, Encoding *enc);
+extern void SFReplaceEncodingBDFProps(SplineFont *sf, EncMap *map);
+extern void SFDefaultOS2Info(struct pfminfo *pfminfo, SplineFont *sf, char *fontname);
+extern int SFFindSlot(SplineFont *sf, EncMap *map, int unienc, const char *name);
+extern int FVImportImages(FontViewBase *fv, char *path, int format, int toback, int flags);
+extern void SFConvertToOrder2(SplineFont *_sf);
+
+// changed api because enums can't be forwarded
+// extern int UniFromName(const char *name, enum uni_interp interp, Encoding *encname); -> cant forward declaration of enums
+// extern const char *StdGlyphName(char *buffer, int uni, enum uni_interp interp, NameList *for_this_font); -> cant forward declaration of enums
+extern int UniFromName(const char *name, int interp, Encoding *encname);
+extern const char *StdGlyphName(char *buffer, int uni, int interp, NameList *for_this_font);
+
 
 ////////////////////////
 // global
@@ -71,4 +109,5 @@ void ffw_override_fstype(void);
 #ifdef __cplusplus
 }
 }
+#endif
 #endif
