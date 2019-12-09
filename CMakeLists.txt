@@ -62,6 +62,8 @@ endif()
 
 # fontforge starts using pkg-config 'correctly' since 2.0.0
 pkg_check_modules(FONTFORGE REQUIRED libfontforge>=2.0.0)
+message(STATUS "FontForge include dirs:'${FONTFORGE_INCLUDE_DIRS}'")
+message(STATUS "FontForge library dirs:'${FONTFORGE_LIBRARY_DIRS}'")
 include_directories(${FONTFORGE_INCLUDE_DIRS})
 link_directories(${FONTFORGE_LIBRARY_DIRS})
 set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${FONTFORGE_LIBRARIES})
