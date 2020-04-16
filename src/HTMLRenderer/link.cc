@@ -34,7 +34,7 @@ using std::endl;
  * The string will be put into a HTML attribute, surrounded by single quotes
  * So pay attention to the characters used here
  */
-static string get_linkdest_detail_str(LinkDest * dest, Catalog * catalog, int & pageno)
+static string get_linkdest_detail_str(const std::unique_ptr<const LinkDest>& dest, Catalog * catalog, int & pageno)
 {
     pageno = 0;
     if(dest->isPageRef())
@@ -141,9 +141,9 @@ string HTMLRenderer::get_linkaction_str(LinkAction * action, string & detail)
             case actionGoTo:
                 {
                     auto * real_action = dynamic_cast<LinkGoTo*>(action);
-                    LinkDest * dest = nullptr;
+                    std::unique_ptr<const LinkDest> dest = nullptr;
                     if(auto _ = real_action->getDest())
-                        dest = _->copy();
+                        dest.reset(_->copy());
                     else if (auto _ = real_action->getNamedDest())
                         dest = cur_catalog->findDest(_);
                     if(dest)
@@ -154,7 +154,6 @@ string HTMLRenderer::get_linkaction_str(LinkAction * action, string & detail)
                         {
                             dest_str = (char*)str_fmt("#%s%x", CSS::PAGE_FRAME_CN, pageno);
                         }
-                        delete dest;
                     }
                 }
                 break;
@@ -166,7 +165,7 @@ string HTMLRenderer::get_linkaction_str(LinkAction * action, string & detail)
             case actionURI:
                 {
                     auto * real_action = dynamic_cast<LinkURI*>(action);
-                    dest_str = real_action->getURI()->toStr();
+                    dest_str = real_action->getURI().c_str();
                 }
                 break;
             case actionLaunch:

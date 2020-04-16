@@ -30,8 +30,9 @@
 // Copyright (C) 2012, 2015, 2016 Jason Crain <jason@aquaticape.us>
 // Copyright (C) 2015 Suzuki Toshiya <mpsuzuki@hiroshima-u.ac.jp>
 // Copyright (C) 2018 Klarälvdalens Datakonsult AB, a KDAB Group company, <info@kdab.com>. Work sponsored by the LiMux project of the city of Munich
-// Copyright (C) 2018 Adam Reichold <adam.reichold@t-online.de>
+// Copyright (C) 2018, 2020 Adam Reichold <adam.reichold@t-online.de>
 // Copyright (C) 2019 Marek Kasik <mkasik@redhat.com>
+// Copyright (C) 2020 Michal <sudolskym@gmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -41,9 +42,9 @@
 #include <poppler-config.h>
 
 #include <cstdint>
-#include <string.h>
-#include <math.h>
-#include <assert.h>
+#include <cstring>
+#include <cmath>
+#include <cassert>
 #include <cairo.h>
 
 #include "goo/gfile.h"
@@ -118,15 +119,12 @@ void CairoImage::setImage (cairo_surface_t *i) {
 // FT_Library instance; to avoid leaks, just use a single global instance
 // initialized the first time it is needed.
 FT_Library CairoOutputDev::ft_lib;
-bool CairoOutputDev::ft_lib_initialized = false;
+std::once_flag CairoOutputDev::ft_lib_once_flag;
 
 CairoOutputDev::CairoOutputDev() {
   doc = nullptr;
 
-  if (!ft_lib_initialized) {
-    FT_Init_FreeType(&ft_lib);
-    ft_lib_initialized = true;
-  }
+  std::call_once(ft_lib_once_flag, FT_Init_FreeType, &ft_lib);
 
   fontEngine = nullptr;
   fontEngine_owner = false;
@@ -712,7 +710,7 @@ void CairoOutputDev::updateFont(GfxState *state) {
 
 /* Align stroke coordinate i if the point is the start or end of a
  * horizontal or vertical line */
-void CairoOutputDev::alignStrokeCoords(GfxSubpath *subpath, int i, double *x, double *y)
+void CairoOutputDev::alignStrokeCoords(const GfxSubpath *subpath, int i, double *x, double *y)
 {
   double x1, y1, x2, y2;
   bool align = false;
@@ -752,13 +750,12 @@ void CairoOutputDev::alignStrokeCoords(GfxSubpath *subpath, int i, double *x, do
 
 #undef STROKE_COORD_TOLERANCE
 
-void CairoOutputDev::doPath(cairo_t *c, GfxState *state, GfxPath *path) {
-  GfxSubpath *subpath;
+void CairoOutputDev::doPath(cairo_t *c, GfxState *state, const GfxPath *path) {
   int i, j;
   double x, y;
   cairo_new_path (c);
   for (i = 0; i < path->getNumSubpaths(); ++i) {
-    subpath = path->getSubpath(i);
+    const GfxSubpath *subpath = path->getSubpath(i);
     if (subpath->getNumPoints() > 0) {
       if (align_stroke_coords) {
         alignStrokeCoords(subpath, 0, &x, &y);
@@ -1403,8 +1400,7 @@ void CairoOutputDev::drawChar(GfxState *state, double x, double y,
     glyphs[glyphCount].y = y - originY;
     glyphCount++;
     if (use_show_text_glyphs) {
-      GooString enc("UTF-8");
-      UnicodeMap *utf8Map = globalParams->getUnicodeMap(&enc);
+      const UnicodeMap *utf8Map = globalParams->getUtf8Map();
       if (utf8Max - utf8Count < uLen*6) {
         // utf8 encoded characters can be up to 6 bytes
 	if (utf8Max > uLen*6)
@@ -1653,7 +1649,7 @@ void CairoOutputDev::beginTransparencyGroup(GfxState * /*state*/, const double *
     /* we need to track the shape */
     cairo_push_group (cairo_shape);
   }
-  if (0 && forSoftMask)
+  if (false && forSoftMask)
     cairo_push_group_with_content (cairo, CAIRO_CONTENT_ALPHA);
   else
     cairo_push_group (cairo);

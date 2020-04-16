@@ -62,7 +62,7 @@ public:
 private:
     void finish();
     // Following methods operate in user space (just before CTM is applied)
-    void do_path(GfxState * state, GfxPath * path);
+    void do_path(GfxState * state, const GfxPath * path);
     void draw_non_char_bbox(GfxState * state, double * bbox);
     void draw_char_bbox(GfxState * state, double * bbox);
     // If cairo is available, parameter state is ignored

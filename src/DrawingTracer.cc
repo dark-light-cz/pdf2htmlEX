@@ -137,11 +137,11 @@ void DrawingTracer::restore()
 #endif
 }
 
-void DrawingTracer::do_path(GfxState * state, GfxPath * path)
+void DrawingTracer::do_path(GfxState * state, const GfxPath * path)
 {
 #if ENABLE_SVG
     //copy from CairoOutputDev::doPath
-    GfxSubpath *subpath;
+    const GfxSubpath *subpath;
     int i, j;
     double x, y;
     cairo_new_path(cairo);
@@ -206,9 +206,9 @@ void DrawingTracer::stroke(GfxState * state)
     //   some chars actually covered by a line join are missed. However chars covered by a acute angle
     //   with line-join-miter may be still recognized as not covered.
     cairo_set_line_cap(cairo, CAIRO_LINE_CAP_SQUARE);
-    GfxPath * path = state->getPath();
+    const GfxPath * path = state->getPath();
     for (int i = 0; i < path->getNumSubpaths(); ++i) {
-        GfxSubpath * subpath = path->getSubpath(i);
+        const GfxSubpath * subpath = path->getSubpath(i);
         if (subpath->getNumPoints() <= 0)
             continue;
         double x = subpath->getX(0);

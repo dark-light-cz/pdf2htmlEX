@@ -25,6 +25,7 @@
 // Copyright (C) 2016 Jason Crain <jason@aquaticape.us>
 // Copyright (C) 2018, 2019 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2018 Klarälvdalens Datakonsult AB, a KDAB Group company, <info@kdab.com>. Work sponsored by the LiMux project of the city of Munich
+// Copyright (C) 2020 Michal <sudolskym@gmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -91,7 +92,7 @@ public:
   CairoOutputDev();
 
   // Destructor.
-  virtual ~CairoOutputDev();
+  ~CairoOutputDev() override;
 
   //----- get info about output device
 
@@ -274,7 +275,7 @@ public:
   double *getType3GlyphBBox () { return t3_glyph_bbox; }
 
 protected:
-  void doPath(cairo_t *cairo, GfxState *state, GfxPath *path);
+  void doPath(cairo_t *cairo, GfxState *state, const GfxPath *path);
   cairo_surface_t *downscaleSurface(cairo_surface_t *orig_surface);
   void getScaledSize(const cairo_matrix_t *matrix,
                      int orig_width, int orig_height,
@@ -285,7 +286,7 @@ protected:
   void setMimeData(GfxState *state, Stream *str, Object *ref,
 		   GfxImageColorMap *colorMap, cairo_surface_t *image, int height);
   void fillToStrokePathClip(GfxState *state);
-  void alignStrokeCoords(GfxSubpath *subpath, int i, double *x, double *y);
+  void alignStrokeCoords(const GfxSubpath *subpath, int i, double *x, double *y);
 #if CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 14, 0)
   bool setMimeDataForJBIG2Globals (Stream *str, cairo_surface_t *image);
 #endif
@@ -320,7 +321,7 @@ protected:
   PDFDoc *doc;			// the current document
 
   static FT_Library ft_lib;
-  static bool ft_lib_initialized;
+  static std::once_flag ft_lib_once_flag;
 
   CairoFontEngine *fontEngine;
   bool fontEngine_owner;
@@ -383,7 +384,7 @@ public:
   CairoImageOutputDev();
 
   // Destructor.
-  virtual ~CairoImageOutputDev();
+  ~CairoImageOutputDev() override;
 
   //----- get info about output device
 
