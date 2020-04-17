@@ -283,6 +283,8 @@ protected:
   cairo_filter_t getFilterForSurface(cairo_surface_t *image,
 				     bool interpolate);
   bool getStreamData (Stream *str, char **buffer, int *length);
+  // pdf2htmlEX: make setMimeData virtual, we need to override it
+  virtual
   void setMimeData(GfxState *state, Stream *str, Object *ref,
 		   GfxImageColorMap *colorMap, cairo_surface_t *image, int height);
   void fillToStrokePathClip(GfxState *state);

@@ -17,6 +17,9 @@
 #include "CairoBackgroundRenderer.h"
 #include "SplashBackgroundRenderer.h"
 
+// #define HR_DEBUG(x)  (x)
+#define HR_DEBUG(x)
+
 namespace pdf2htmlEX {
 
 using std::string;
@@ -205,6 +208,8 @@ void CairoBackgroundRenderer::embed_image(int pageno)
     // See also:
     //   https://developer.mozilla.org/en-US/docs/Web/SVG/SVG_as_an_Image
     //   http://stackoverflow.com/questions/4476526/do-i-use-img-object-or-embed-for-svg-files
+    
+    HR_DEBUG(printf("CairoBackgroundRenderer::embed_image->bitmaps_count=%zu\n", bitmaps_in_current_page.size()));
 
     if (param.svg_embed_bitmap || bitmaps_in_current_page.empty())
         f_page << "<img";
@@ -238,6 +243,7 @@ string CairoBackgroundRenderer::build_bitmap_path(int id)
 void CairoBackgroundRenderer::setMimeData(GfxState *state, Stream *str, Object *ref,
 		   GfxImageColorMap *colorMap, cairo_surface_t *image, int height)
 {
+    HR_DEBUG(printf("CairoBackgroundRenderer::setMimeData (svg_embed_bitmap:%d)\n",param.svg_embed_bitmap));
     if (param.svg_embed_bitmap)
     {
         CairoOutputDev::setMimeData(state, str, ref, colorMap, image, height);
@@ -273,6 +279,11 @@ void CairoBackgroundRenderer::setMimeData(GfxState *state, Stream *str, Object *
     Object obj = str->getDict()->lookup("ColorSpace");
     if (!obj.isName() || (strcmp(obj.getName(), "DeviceRGB") && strcmp(obj.getName(), "DeviceGray")) )
     {
+        if (!obj.isName()){
+            HR_DEBUG(printf("CairoBackgroundRenderer::setMimeData ColorSpace is not Name object - keep image embedded. Type:%d (isNull:%d, isArray:%d).\n",obj.getType(), obj.isNull(), obj.isArray()));
+        } else {
+            HR_DEBUG(printf("CairoBackgroundRenderer::setMimeData WrongColorSpace - keep image embedded:%s)\n",obj.getName()));
+        }
         obj.setToNull();
         return;
     }
@@ -280,6 +291,7 @@ void CairoBackgroundRenderer::setMimeData(GfxState *state, Stream *str, Object *
     obj = str->getDict()->lookup("Decode");
     if (obj.isArray())
     {
+        HR_DEBUG(printf("CairoBackgroundRenderer::setMimeData Decode is array - keep image embedded)\n"));
         obj.setToNull();
         return;
     }

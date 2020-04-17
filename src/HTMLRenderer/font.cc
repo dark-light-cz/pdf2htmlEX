@@ -47,6 +47,9 @@ using std::unordered_set;
 using std::cerr;
 using std::endl;
 
+#define HR_DEBUG(x)  (x)
+// #define HR_DEBUG(x)
+
 string HTMLRenderer::dump_embedded_font (GfxFont * font, FontInfo & info)
 {
     if(info.is_type3)
@@ -67,14 +70,24 @@ string HTMLRenderer::dump_embedded_font (GfxFont * font, FontInfo & info)
 
         font_obj = Object(*id);
 
+        if(font_obj.isRef())
+        {
+            HR_DEBUG(printf( "CairoBackgroundRenderer::dump_embedded_font:font is external ref.\n"));
+            cerr << "TODO: Font object is reference. Need to resolce this." << endl;
+            throw 0;
+        }
+
         if(!font_obj.isDict())
         {
-            cerr << "Font object is not a dictionary" << endl;
+            HR_DEBUG(printf(
+                "CairoBackgroundRenderer::dump_embedded_font:wrong font. (Is:%d))\n", 
+                font_obj.getType()
+            ));
+            cerr << "Font object is not a dictionary." << endl;
             throw 0;
         }
 
         Dict * dict = font_obj.getDict();
-
 
         Ref id2;
         if(dict->lookup("DescendantFonts", &id2).isArray())

@@ -14,7 +14,7 @@
 #include "util/namespace.h"
 #include "util/unicode.h"
 
-//#define HR_DEBUG(x)  (x)
+// #define HR_DEBUG(x)  (x)
 #define HR_DEBUG(x)
 
 namespace pdf2htmlEX {
