@@ -73,7 +73,7 @@ string HTMLRenderer::dump_embedded_font (GfxFont * font, FontInfo & info)
         if(font_obj.isRef())
         {
             HR_DEBUG(printf( "CairoBackgroundRenderer::dump_embedded_font:font is external ref.\n"));
-            cerr << "TODO: Font object is reference. Need to resolce this." << endl;
+            cerr << "TODO: Font object is reference. Need to resolve this." << endl;
             throw 0;
         }
 
