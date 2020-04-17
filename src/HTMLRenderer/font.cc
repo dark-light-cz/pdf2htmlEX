@@ -56,7 +56,7 @@ string HTMLRenderer::dump_embedded_font (GfxFont * font, FontInfo & info)
         return dump_type3_font(font, info);
 
     Object obj, obj1, obj2;
-    Object font_obj, font_obj2, fontdesc_obj;
+    Object font_obj, fontdesc_obj, ref_font_obj, descendatFonts;
     string suffix;
     string filepath;
 
@@ -70,38 +70,75 @@ string HTMLRenderer::dump_embedded_font (GfxFont * font, FontInfo & info)
 
         font_obj = Object(*id);
 
+        Dict * dict;
         if(font_obj.isRef())
         {
             HR_DEBUG(printf( "CairoBackgroundRenderer::dump_embedded_font:font is external ref.\n"));
-            cerr << "TODO: Font object is reference. Need to resolve this." << endl;
-            throw 0;
+            // TODO find where is the real fontDict sroted using font_obj->getRef().type .ID
+            ref_font_obj = xref->fetch(font_obj.getRef(), 1);
+            if (ref_font_obj.isDict() && ref_font_obj.dictLookup("DescendantFonts").isArray()){
+                // its OK
+                dict = ref_font_obj.getDict();
+                descendatFonts = dict->lookup("DescendantFonts");
+            } else {
+                HR_DEBUG(cerr << "Type:"
+                     << (ref_font_obj.isBool()?"Bool":"")
+                     << (ref_font_obj.isInt()?"Int":"")
+                     << (ref_font_obj.isReal()?"Real":"")
+                     << (ref_font_obj.isNum()?"Num":"")
+                     << (ref_font_obj.isString()?"String":"")
+                     << (ref_font_obj.isName()?"Name":"")
+                     << (ref_font_obj.isNull()?"Null":"")
+                     << (ref_font_obj.isArray()?"Array":"")
+                     << (ref_font_obj.isDict()?"Dict":"")
+                     << (ref_font_obj.isStream()?"Stream":"")
+                     << (ref_font_obj.isRef()?"Ref":"")
+                     << (ref_font_obj.isCmd()?"Cmd":"")
+                     << (ref_font_obj.isError()?"Error":"")
+                     << (ref_font_obj.isEOF()?"EOF":"")
+                     << (ref_font_obj.isNone()?"None":"")
+                     << (ref_font_obj.isInt64()?"Int64":"")
+                     << (ref_font_obj.isIntOrInt64()?"IntOrInt64":"")
+                     << endl);
+                if (ref_font_obj.isDict()){
+                    for (int t=0; t<ref_font_obj.dictGetLength(); ++t){
+                        cerr << "Key:" << ref_font_obj.dictGetKey(t) << endl;
+                    }
+                }
+                cerr << "TODO: Font object is reference to not FontDict. Need to resolve this." << endl;
+                throw 0;
+            }
+        } else {
+
+            if(!font_obj.isDict())
+            {
+                HR_DEBUG(printf(
+                    "CairoBackgroundRenderer::dump_embedded_font:wrong font. (Is:%d))\n", 
+                    font_obj.getType()
+                ));
+                cerr << "Font object is not a dictionary." << endl;
+                throw 0;
+            }
+
+            dict = font_obj.getDict();
+            descendatFonts = dict->lookup("DescendantFonts");
         }
 
-        if(!font_obj.isDict())
+        if(descendatFonts.isArray())
         {
             HR_DEBUG(printf(
-                "CairoBackgroundRenderer::dump_embedded_font:wrong font. (Is:%d))\n", 
-                font_obj.getType()
+                "CairoBackgroundRenderer::dump_embedded_font: Font has %d Descendatnts.\n", 
+                descendatFonts.arrayGetLength()
             ));
-            cerr << "Font object is not a dictionary." << endl;
-            throw 0;
-        }
-
-        Dict * dict = font_obj.getDict();
-
-        Ref id2;
-        if(dict->lookup("DescendantFonts", &id2).isArray())
-        {
-            font_obj2 = Object(id2);
-            if(font_obj2.arrayGetLength() == 0)
+            if(descendatFonts.arrayGetLength() == 0)
             {
                 cerr << "Warning: empty DescendantFonts array" << endl;
             }
             else
             {
-                if(font_obj2.arrayGetLength() > 1)
+                if(descendatFonts.arrayGetLength() > 1)
                     cerr << "TODO: multiple entries in DescendantFonts array" << endl;
-                obj2 = font_obj2.arrayGet(0);
+                obj2 = descendatFonts.arrayGet(0);
                 if(obj2.isDict())
                 {
                     dict = obj2.getDict();
@@ -203,9 +240,10 @@ string HTMLRenderer::dump_embedded_font (GfxFont * font, FontInfo & info)
     obj.setToNull();
 
     fontdesc_obj.setToNull();
-    font_obj2.setToNull();
+    descendatFonts.setToNull();
     font_obj.setToNull();
-
+    ref_font_obj.setToNull();
+    HR_DEBUG(printf("Created external font in file %s\n", filepath.c_str()));
     return filepath;
 }
 
@@ -402,7 +440,6 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
     {
         cerr << "Embed font: " << filepath << " " << info.id << endl;
     }
-
     ffw_load_font(filepath.c_str());
     ffw_prepare_font();
 
