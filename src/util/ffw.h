@@ -61,7 +61,7 @@ extern const char *StdGlyphName(char *buffer, int uni, int interp, NameList *for
 // global
 void ffw_init(int debug);
 void ffw_finalize(void);
-long ffw_get_version(void);
+const char * ffw_get_version(void);
 
 ////////////////////////
 // load & save

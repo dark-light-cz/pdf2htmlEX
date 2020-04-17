@@ -83,7 +83,7 @@ struct HTMLRenderer : OutputDev
     // box is the crop box?
     virtual bool needClipToCropBox() { return true; }
 
-    virtual void setDefaultCTM(double *ctm);
+    virtual void setDefaultCTM(const double *ctm);
 
     // Start a page.
     virtual void startPage(int pageNum, GfxState *state, XRef * xref);
@@ -130,9 +130,11 @@ struct HTMLRenderer : OutputDev
     virtual void eoClip(GfxState * state);
     virtual void clipToStrokePath(GfxState * state);
     
-    virtual void drawString(GfxState * state, GooString * s);
+    virtual void drawString(GfxState * state, const GooString * s);
 
-    virtual void drawImage(GfxState * state, Object * ref, Stream * str, int width, int height, GfxImageColorMap * colorMap, bool interpolate, int *maskColors, bool inlineImg);
+    virtual void drawImage(GfxState * state, Object * ref, Stream * str, 
+            int width, int height, GfxImageColorMap * colorMap, 
+            bool interpolate, const int *maskColors, bool inlineImg);
 
     virtual void drawSoftMaskedImage(GfxState *state, Object *ref, Stream *str,
                        int width, int height,

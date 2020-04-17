@@ -23,7 +23,7 @@ using std::none_of;
 using std::cerr;
 using std::endl;
 
-void HTMLRenderer::drawString(GfxState * state, GooString * s)
+void HTMLRenderer::drawString(GfxState * state, const GooString * s)
 {
     if(s->getLength() == 0)
         return;
@@ -70,7 +70,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
     CharCode code;
     const Unicode *u = nullptr;
 
-    HR_DEBUG(printf("HTMLRenderer::drawString:len=%d\n", len));
+    HR_DEBUG(printf("HTMLRenderer::drawString:len=%zu\n", len));
 
     while (len > 0) 
     {

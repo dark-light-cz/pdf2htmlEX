@@ -113,9 +113,9 @@ void ffw_finalize(void)
     }
 }
 
-long ffw_get_version(void)
+const char * ffw_get_version(void)
 {
-    return FONTFORGE_VERSIONDATE_RAW;
+    return FONTFORGE_VERSION;
 }
 
 void ffw_new_font()
@@ -304,7 +304,7 @@ void ffw_cidflatten(void)
         fprintf(stderr, "Cannot flatten a non-CID font\n");
         return;
     }
-    SFFlatten(cur_fv->sf->cidmaster);
+    SFFlatten(&cur_fv->sf->cidmaster);
 }
 
 /*

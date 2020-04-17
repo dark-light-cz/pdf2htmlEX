@@ -170,7 +170,7 @@ void HTMLRenderer::process(PDFDoc *doc)
     cerr << endl;
 }
 
-void HTMLRenderer::setDefaultCTM(double *ctm)
+void HTMLRenderer::setDefaultCTM(const double *ctm)
 {
     memcpy(default_ctm, ctm, sizeof(default_ctm));
 }
