@@ -44,11 +44,11 @@ public:
   virtual void drawChar(GfxState *state, double x, double y,
       double dx, double dy,
       double originX, double originY,
-      CharCode code, int nBytes, Unicode *u, int uLen);
+      CharCode code, int nBytes, const Unicode *u, int uLen);
 
   //for proof
   void beginTextObject(GfxState *state);
-  void beginString(GfxState *state, GooString * str);
+  void beginString(GfxState *state, const GooString * str);
   void endTextObject(GfxState *state);
   void updateRender(GfxState *state);
 

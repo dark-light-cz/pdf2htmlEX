@@ -65,7 +65,7 @@ void SplashBackgroundRenderer::startPage(int pageNum, GfxState *state, XRef *xre
 void SplashBackgroundRenderer::drawChar(GfxState *state, double x, double y,
   double dx, double dy,
   double originX, double originY,
-  CharCode code, int nBytes, Unicode *u, int uLen)
+  CharCode code, int nBytes, const Unicode *u, int uLen)
 {
     // draw characters as image when
     // - in fallback mode
@@ -100,7 +100,7 @@ void SplashBackgroundRenderer::beginTextObject(GfxState *state)
     SplashOutputDev::beginTextObject(state);
 }
 
-void SplashBackgroundRenderer::beginString(GfxState *state, GooString * str)
+void SplashBackgroundRenderer::beginString(GfxState *state, const GooString * str)
 {
     if (param.proof == 2)
         proof_begin_string(state, this);

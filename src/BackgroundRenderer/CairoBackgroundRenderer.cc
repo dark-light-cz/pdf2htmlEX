@@ -46,7 +46,7 @@ CairoBackgroundRenderer::~CairoBackgroundRenderer()
 void CairoBackgroundRenderer::drawChar(GfxState *state, double x, double y,
         double dx, double dy,
         double originX, double originY,
-        CharCode code, int nBytes, Unicode *u, int uLen)
+        CharCode code, int nBytes, const Unicode *u, int uLen)
 {
     // draw characters as image when
     // - in fallback mode
@@ -81,7 +81,7 @@ void CairoBackgroundRenderer::beginTextObject(GfxState *state)
     CairoOutputDev::beginTextObject(state);
 }
 
-void CairoBackgroundRenderer::beginString(GfxState *state, GooString * str)
+void CairoBackgroundRenderer::beginString(GfxState *state, const GooString * str)
 {
     if (param.proof == 2)
         proof_begin_string(state, this);
