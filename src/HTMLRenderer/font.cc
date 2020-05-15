@@ -73,8 +73,9 @@ string HTMLRenderer::dump_embedded_font (GfxFont * font, FontInfo & info)
         Dict * dict;
         if(font_obj.isRef())
         {
+            /*
             HR_DEBUG(printf( "CairoBackgroundRenderer::dump_embedded_font:font is external ref.\n"));
-            // TODO find where is the real fontDict sroted using font_obj->getRef().type .ID
+            */
             ref_font_obj = xref->fetch(font_obj.getRef(), 1);
             if (ref_font_obj.isDict() && ref_font_obj.dictLookup("DescendantFonts").isArray()){
                 // its OK
@@ -126,10 +127,12 @@ string HTMLRenderer::dump_embedded_font (GfxFont * font, FontInfo & info)
 
         if(descendatFonts.isArray())
         {
+            /*
             HR_DEBUG(printf(
                 "CairoBackgroundRenderer::dump_embedded_font: Font has %d Descendatnts.\n", 
                 descendatFonts.arrayGetLength()
             ));
+            */
             if(descendatFonts.arrayGetLength() == 0)
             {
                 cerr << "Warning: empty DescendantFonts array" << endl;

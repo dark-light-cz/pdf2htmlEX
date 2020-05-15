@@ -30,6 +30,13 @@ static Encoding * original_enc = NULL;
 static Encoding * unicodefull_enc = NULL;
 static Encoding * enc_head = NULL;
 
+static void warn(const char * format, ...)
+{
+    va_list al;
+    va_start(al, format);
+    vfprintf(stderr, format, al);
+    va_end(al);
+}
 static void err(const char * format, ...)
 {
     va_list al;
@@ -131,14 +138,12 @@ void ffw_new_font()
 void ffw_load_font(const char * filename)
 {
     assert((cur_fv == NULL) && "Previous font is not destroyed");
+    SplineFont * font = LoadSplineFont(filename, 1);
 
-    char * _filename = strcopy(filename);
-    SplineFont * font = LoadSplineFont(_filename, 1);
-
-    free(_filename);
-
-    if(!font)
+    if(!font){
         err("Cannot load font %s\n", filename);
+        return;
+    }
 
     if(!font->fv)
         FVAppend(_FontViewCreate(font));
