@@ -33,6 +33,7 @@ typedef struct encmap EncMap;
 typedef struct namelist NameList;
 
 
+extern void FindProgDir(char *prog);
 extern void InitSimpleStuff(void);
 extern Encoding *FindOrMakeEncoding(const char *name);
 extern void SplineFontFindBounds(SplineFont *sf, DBounds *bounds);
@@ -59,7 +60,7 @@ extern const char *StdGlyphName(char *buffer, int uni, int interp, NameList *for
 
 ////////////////////////
 // global
-void ffw_init(int debug);
+void ffw_init(int debug, const char* program_name);
 void ffw_finalize(void);
 const char * ffw_get_version(void);
 

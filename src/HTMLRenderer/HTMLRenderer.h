@@ -50,7 +50,7 @@ namespace pdf2htmlEX {
 
 struct HTMLRenderer : OutputDev
 {
-    HTMLRenderer(const Param & param);
+    HTMLRenderer(const Param & param, const char* program_name);
     virtual ~HTMLRenderer();
 
     void process(PDFDoc * doc);

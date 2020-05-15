@@ -52,8 +52,12 @@ static void dumb_logwarning(const char * format, ...) { }
 
 static void dumb_post_error(const char * title, const char * error, ...) { }
 
-void ffw_init(int debug)
+void ffw_init(int debug, const char* program_name)
 {
+
+    char * _prg_name = strcopy(program_name);
+    // FontForge need non-const program name :-O
+    FindProgDir(_prg_name);
     InitSimpleStuff();
     if ( default_encoding==NULL ){
         Encoding *enc  = FindOrMakeEncoding("ISO8859-1");

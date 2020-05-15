@@ -416,7 +416,7 @@ int main(int argc, char **argv)
         param.last_page = min<int>(max<int>(param.last_page, param.first_page), doc->getNumPages());
 
 
-        unique_ptr<HTMLRenderer> renderer = std::make_unique<HTMLRenderer>(param);
+        unique_ptr<HTMLRenderer> renderer = std::make_unique<HTMLRenderer>(param, argv[0]);
         renderer->process(doc);
 
         finished = true;
