@@ -81,6 +81,9 @@ string HTMLRenderer::dump_embedded_font (GfxFont * font, FontInfo & info)
                 // its OK
                 dict = ref_font_obj.getDict();
                 descendatFonts = dict->lookup("DescendantFonts");
+            } else if (ref_font_obj.isDict() && ref_font_obj.dictLookup("FontDescriptor").isDict()){
+                dict = ref_font_obj.getDict();
+                fontdesc_obj = dict->lookup("FontDescriptor");
             } else {
                 HR_DEBUG(cerr << "Type:"
                      << (ref_font_obj.isBool()?"Bool":"")
@@ -147,8 +150,13 @@ string HTMLRenderer::dump_embedded_font (GfxFont * font, FontInfo & info)
                     dict = obj2.getDict();
                 }
             }
+            fontdesc_obj = dict->lookup("FontDescriptor");
+        } else if (fontdesc_obj.isDict()){
+            // found font has no descendants but it contains font itself
+        } else {
+            cerr << "Font Descendatnt is not array and fontdescObj is not Dict -> wtf??" << endl;
+            throw 0;
         }
-        fontdesc_obj = dict->lookup("FontDescriptor");
         if(!fontdesc_obj.isDict())
         {
             cerr << "Cannot find FontDescriptor " << endl;
@@ -802,11 +810,8 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
         {
             cerr << "space width: " << info.space_width << endl;
         }
-        // TODO - fails on actual popper - expecting that it's not needed but it should be checked
-        // if(ctu)
-        //    ctu->decRefCnt();
     }
-
+    
     /*
      * Step 3
      * Generate the font as desired
