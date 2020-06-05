@@ -333,7 +333,20 @@ void ffw_add_empty_char(int32_t unicode, int width)
 
 int ffw_get_em_size(void)
 {
-    return cur_fv->sf->ascent + cur_fv->sf->descent;
+    int s = cur_fv->sf->ascent + cur_fv->sf->descent;
+    if (s <= 1){
+        /* TODO
+         * Some fonts have somehow malformed ascent(0) and descent(1).
+         * In short finaly generated font will have all eglyps 1pt wide.
+         * It turns out that returning 1000 in all cases I found solves this for 
+         *  all founts i have found with this issue.
+         *  It would be nice to lookup such font and some font libraries if there
+         *      is any "multiplicator" in font structure which can tell us right value
+         *      better than such ugly hack
+         */
+        s = 1000;
+    }
+    return s;
 }
 
 void ffw_fix_metric()
