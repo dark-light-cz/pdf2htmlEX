@@ -27,6 +27,13 @@ view hash
  - space issue
   - python简明*.pdf
  - fix negative word-spacing for IE
+ - change poppler and fontforge to git submodules and change linking to static to avoid segfaults in future (we have to revert some commits in popper and we are using unstabeAPI!)
+ - inline SVG in page if used svg as background and dumping external images 
+ - find and implement hiding invisible elemets (we render some pdf element which is somehow hidden)
+ - implement dumping out more image formats.
+ - implement option to use external tool to change colorspage of some images to RGB
+ - solve PDF embeded in PDF 
+ - allow embeded images to be dumped in full quality instead or resizing them
 
 == Future: ==
 
